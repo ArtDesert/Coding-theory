@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace lab1
 {
@@ -126,7 +127,7 @@ namespace lab1
 					Console.BackgroundColor = ConsoleColor.Black;
                     Console.Write(" ");
                 }
-                Console.WriteLine();
+                Console.Write("\n");
             }
 		}
 
@@ -483,7 +484,10 @@ namespace lab1
 				{
 					builder.Append($"{Arr[i, j]} ");
 				}
-				builder.Append("\r\n");
+				if (i != Row - 1)
+				{
+					builder.Append("\r\n");
+				}
 			}
 			return builder.ToString();
 		}
@@ -575,6 +579,69 @@ namespace lab1
 						}
 					}
 				}
+			}
+			return X;
+		}
+
+		public Matrix Concat(Matrix matrix)
+		{
+			int n = Row, k = Col + matrix.Col;
+			var result = new Matrix(new int[n, k]);
+			for (int i = 0; i < n; ++i)
+			{
+				for (int j = 0; j < n; ++j)
+				{
+					result[i, j] = Arr[i, j];
+				}
+			}
+			for (int i = 0; i < n; ++i)
+			{
+				for (int j = n; j < k; ++j)
+				{
+					result[i, j] = matrix[i, j - n];
+				}
+			}
+			return result;
+		}
+
+		public Matrix StackDown(Matrix matrix)
+		{
+			int n = Row + matrix.Row, k = Col;
+			var result = new Matrix(new int[n, k]);
+			for (int i = 0; i < Row; ++i)
+			{
+				for (int j = 0; j < Col; ++j)
+				{
+					result[i, j] = Arr[i, j];
+				}
+			}
+			for (int i = 0; i < matrix.Row; ++i)
+			{
+				for (int j = 0; j < matrix.Col; ++j)
+				{
+					result[i + Row, j] = matrix[i, j];
+				}
+			}
+			return result;
+		}
+
+		public static Matrix CreateX(int r)
+		{
+			int n = (int)(Math.Pow(2, r) - 1), k = n - r;
+			var X = new Matrix(new int[k, r]);
+			for (int i = 0; i < r; ++i)
+			{
+				for (int j = 0; j < k; ++j)
+				{
+					if (((j >> i) & 1) == 1) // Проверяем, установлен ли i-й бит в j-м индексе
+					{
+						X[j, i] = 1;
+					}
+				}
+			}
+			for (int j = 0; j < X.Col; ++j)
+			{
+				X[0, j] = 1;
 			}
 			return X;
 		}

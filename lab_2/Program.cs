@@ -17,7 +17,10 @@ namespace lab2
 				{ 1, 1, 1 }, 
 				{ 1, 1, 0 } };
 			var X = new Matrix(X_arr);
-			var I_4 = new Matrix(4);
+            Console.WriteLine("X = ");
+            X.Print();
+            Console.WriteLine();
+            var I_4 = new Matrix(4);
 
 			var G_arr = new int[k, n]; //[I_4|X]
 

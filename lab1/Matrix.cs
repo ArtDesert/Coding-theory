@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using lab1;
 
 namespace lab1
 {
@@ -91,11 +91,11 @@ namespace lab1
 
 		public int this[int i, int j]
 		{
-			get 
+			get
 			{
 				return Arr[i, j];
 			}
-			set 
+			set
 			{
 				Arr[i, j] = value;
 			}
@@ -125,10 +125,10 @@ namespace lab1
 					}
 					Console.Write($"{Arr[i, j]}");
 					Console.BackgroundColor = ConsoleColor.Black;
-                    Console.Write(" ");
-                }
-                Console.Write("\n");
-            }
+					Console.Write(" ");
+				}
+				Console.Write("\n");
+			}
 		}
 
 		public void PrintWithNoSelectedLeadColumns(ConsoleColor color)
@@ -169,14 +169,14 @@ namespace lab1
 					{
 						Console.BackgroundColor = leadColor;
 					}
-					else 
+					else
 					{
 						Console.BackgroundColor = noLeadColor;
 					}
 					Console.Write(Arr[i, j]);
-                }
-                Console.WriteLine();
-            }
+				}
+				Console.WriteLine();
+			}
 			Console.BackgroundColor = ConsoleColor.Black;
 		}
 
@@ -229,7 +229,7 @@ namespace lab1
 			//Зануляем все элементы над ведущим элементом
 			foreach ((int i, int j) leadIndex in leads)
 			{
-				for (int i = leadIndex.i - 1 ; i >= 0; --i)
+				for (int i = leadIndex.i - 1; i >= 0; --i)
 				{
 					if (result.Arr[i, leadIndex.j] != 0)
 					{
@@ -317,7 +317,7 @@ namespace lab1
 			{
 				for (int j = 0; j < Col; ++j)
 				{
-					arr[row.newI, j] = Arr[row.i, j]; 
+					arr[row.newI, j] = Arr[row.i, j];
 				}
 			}
 			return new Matrix(arr);
@@ -472,7 +472,13 @@ namespace lab1
 
 		public override int GetHashCode()
 		{
-			return Arr.GetHashCode();
+			var hash = 0;
+			var mod = (int)(Math.Pow(2, 32) - 5);
+			foreach (var item in Arr)
+			{
+				hash += item.GetHashCode() % mod;
+			}
+			return hash % mod;
 		}
 
 		public override string ToString()
@@ -627,23 +633,51 @@ namespace lab1
 
 		public static Matrix CreateX(int r)
 		{
-			int n = (int)(Math.Pow(2, r) - 1), k = n - r;
-			var X = new Matrix(new int[k, r]);
+			int n = (int)(Math.Pow(2, r) - r - 1);
+			var X = new Matrix(new int[n, r]);
+			var subsets = GetAllSubsets(r);
 			for (int i = 0; i < r; ++i)
 			{
-				for (int j = 0; j < k; ++j)
+				subsets
+					.Remove(subsets.Where(x => x.Sum() == 1 && x[i] == 1)
+					.FirstOrDefault());
+			}
+			subsets.Remove(subsets.Where(x => x.Sum() == 0).FirstOrDefault());
+			for (int i = 0; i < n; ++i)
+			{
+				for (int j = 0; j < r; ++j)
 				{
-					if (((j >> i) & 1) == 1) // Проверяем, установлен ли i-й бит в j-м индексе
-					{
-						X[j, i] = 1;
-					}
+					X[i, j] = subsets[i][j];
 				}
 			}
-			for (int j = 0; j < X.Col; ++j)
-			{
-				X[0, j] = 1;
-			}
 			return X;
+		}
+
+		public static List<List<int>> GetAllSubsets(int n)
+		{
+			var set = Enumerable.Range(0, n).ToArray();
+			var subsets = new List<List<int>>();
+			for (int i = 0; i < (1 << n); i++)
+			{
+				List<int> subset = new List<int>();
+				for (int j = 0; j < n; j++)
+				{
+					if ((i & (1 << j)) > 0)
+					{
+						subset.Add(set[j]);
+					}
+				}
+				subsets.Add(subset);
+			}
+			return subsets.Select(x =>
+			{
+				var subset = new int[n];
+				foreach (var item in x)
+				{
+					subset[item] = 1;
+				}
+				return subset.ToList();
+			}).ToList();
 		}
 	}
 }

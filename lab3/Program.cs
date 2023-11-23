@@ -9,8 +9,9 @@ namespace lab3
 	{
 		static void Main(string[] args)
 		{
-			int r = 4, multiple = 1, taskNumber = 2;
-			Task(r, multiple, taskNumber);
+			int r = 4, multiple = 3;
+			Task(r, multiple, 1);
+			//Task(r, multiple, 2);
 		}
 
 		/// <summary>
@@ -67,10 +68,7 @@ namespace lab3
 			syndroms.Print();
 
 			var word = new Matrix(new int[k]);
-			for (int i = 0; i < random.Next(0, k / 2); ++i)
-			{
-				word[0, random.Next(0, k)] = 1;
-			}
+			word[0, 0] = 1;
 			Console.WriteLine($"\r\n{nameof(word)}  =");
 			word.Print();
 
@@ -78,11 +76,7 @@ namespace lab3
             Console.WriteLine($"\r\n{nameof(encodedWord)} =");
 			encodedWord.Print();
 
-			var actualError = new Matrix(new int[n]);
-			foreach (var errorPosition in Enumerable.Range(0, multiple).Select(x => random.Next(0, n)))
-			{
-				actualError[0, errorPosition] = 1;
-			}
+			var actualError = new Matrix(new int[n]).SumWithError1(0, 1, 2, 3); //Error
 			Console.WriteLine($"\r\n{nameof(actualError)} =");
 			actualError.Print();
 

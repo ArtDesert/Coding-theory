@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using lab1;
 
 namespace lab1
 {
@@ -13,6 +12,18 @@ namespace lab1
 		public int[,] Arr { get; set; }
 		public HashSet<(int, int)> Leads { get; set; }
 		public HashSet<int> NoLeads { get; set; }
+		public int Weight
+		{
+			get
+			{
+				int weight = 0;
+				foreach (var item in Arr)
+				{
+					weight += item;
+				}
+				return weight;
+			}
+		}
 
 		public Matrix(Matrix matrix)
 		{
@@ -383,8 +394,40 @@ namespace lab1
 			return result;
 		}
 
-		public static Matrix operator *(Matrix m1, Matrix m2)
+		/// <summary>
+		/// Произведение Кронекера
+		/// </summary>
+		/// <param name="m1"></param>
+		/// <param name="m2"></param>
+		/// <returns></returns>
+		public static Matrix operator %(Matrix m1, Matrix m2)
 		{
+			int m = m1.Row, n = m1.Col;
+			int p = m2.Row, q = m2.Col;
+			var result = new Matrix(new int[m * p, n * q]);
+			for (int i = 0; i < m; ++i)
+			{
+				for (int j = 0; j < n; ++j)
+				{
+					var curMatrix = m1[i, j] * m2;
+					for (int k = 0; k < p; ++k)
+					{
+						for (int s = 0; s < q; ++s)
+						{
+							result[i * p + k, j * q + s] = curMatrix[k, s];
+						}
+					}
+				}
+			}
+			return result;
+		}
+
+		public static Matrix Mult (Matrix m1, Matrix m2)
+		{
+			if (m1.Col != m2.Row)
+			{
+				throw new ArgumentException("Внутренние размеры матриц не совпадают!");
+			}
 			var arr = new int[m1.Row, m2.Col];
 			for (int i = 0; i < m1.Row; ++i)
 			{
@@ -393,13 +436,44 @@ namespace lab1
 					int sum = 0;
 					for (int k = 0; k < m1.Col; ++k)
 					{
-						sum = (sum + m1.Arr[i, k] * m2.Arr[k, j]) % 2;
+						sum += m1.Arr[i, k] * m2.Arr[k, j];
 					}
 					arr[i, j] = sum;
 				}
 			}
 			var result = new Matrix(arr);
 			return result;
+		}
+
+		public static Matrix operator *(Matrix m1, Matrix m2)
+		{
+			var result = Mult(m1, m2);
+			for (int i = 0; i < m1.Row; ++i)
+			{
+				for (int j = 0; j < m2.Col; ++j)
+				{
+					result[i, j] = result[i, j] % 2;
+				}
+			}
+			return result;
+		}
+
+		public static Matrix operator *(Matrix m, int k)
+		{
+			var result = new Matrix(m);
+			for (int i = 0; i < m.Row; ++i)
+			{
+				for (int j = 0; j < m.Col; ++j)
+				{
+					result[i, j] *= k;
+				}
+			}
+			return result;
+		}
+
+		public static Matrix operator *(int k, Matrix m)
+		{
+			return m * k;
 		}
 
 		public int GetCodeDistance()
@@ -595,16 +669,16 @@ namespace lab1
 			var result = new Matrix(new int[n, k]);
 			for (int i = 0; i < n; ++i)
 			{
-				for (int j = 0; j < n; ++j)
+				for (int j = 0; j < Col; ++j)
 				{
 					result[i, j] = Arr[i, j];
 				}
 			}
 			for (int i = 0; i < n; ++i)
 			{
-				for (int j = n; j < k; ++j)
+				for (int j = Col; j < k; ++j)
 				{
-					result[i, j] = matrix[i, j - n];
+					result[i, j] = matrix[i, j - Col];
 				}
 			}
 			return result;
@@ -678,6 +752,16 @@ namespace lab1
 				}
 				return subset.ToList();
 			}).ToList();
+		}
+
+		public Matrix SelectRow(int index)
+		{
+			var result = new Matrix(new int[Col]);
+			for (int j = 0; j < Col; ++j)
+			{
+				result[0, j] = Arr[index, j];
+			}
+			return result;
 		}
 	}
 }
